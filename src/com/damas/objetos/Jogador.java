@@ -1,29 +1,32 @@
 package com.damas.objetos;
 
-/**
- * Jogador, recebe um nome e armazena os pontos
- * @author João Victor da S. Cirilo {@link joao.cirilo@academico.ufpb.br}
- */
+// Representa um jogador, sua cor e sua pontuação.
 public class Jogador {
+
     public static final String DEFAULT_NAME = "Anônimo";
-    
+
     private String nome;
     private int pontos;
+    private CorPeca cor;
 
-    public Jogador (String nome) {
-
+    public Jogador(String nome, CorPeca cor) {
         if (validarNome(nome)) {
             this.nome = nome;
         } else {
             this.nome = DEFAULT_NAME;
         }
 
+        this.cor = cor;
         pontos = 0;
     }
 
     private boolean validarNome(String nome) {
         if (nome.length() > 16) return false;
         return true;
+    }
+
+    public boolean controla(Peca peca) {
+        return peca.getCor() == cor;
     }
 
     public void addPonto() {
@@ -42,8 +45,11 @@ public class Jogador {
         return nome;
     }
 
+    public CorPeca getCor() {
+        return cor;
+    }
+
     public void setNome(String nome) {
         validarNome(nome);
     }
-
 }
