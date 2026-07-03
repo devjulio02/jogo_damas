@@ -1,12 +1,13 @@
 package com.damas.objetos;
 
-// Representa uma pedra comum.
+//Representa uma Pedra e implementa somente suas regras específicas;
 public class Pedra extends PecaAbstrata {
 
     public Pedra(Casa casa, CorPeca cor) {
         super(casa, cor);
     }
 
+    //A Pedra pode andar no máximo duas casas na diagonal;
     @Override
     public boolean isMovimentoValido(Casa destino) {
         int distanciaX = Math.abs(destino.getX() - casa.getX());
@@ -17,6 +18,7 @@ public class Pedra extends PecaAbstrata {
         return distanciaX <= 2 && distanciaX == distanciaY;
     }
 
+    //Sem captura a Pedra anda uma casa no sentido definido pela sua cor;
     @Override
     public boolean podeMoverSemCaptura(Casa destino) {
         int distanciaX = Math.abs(destino.getX() - casa.getX());
