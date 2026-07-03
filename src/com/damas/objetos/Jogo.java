@@ -1,8 +1,9 @@
 package com.damas.objetos;
 
 import java.util.ArrayList;
+import java.util.List;
 
-// Coordena a partida e delega as validações aos objetos responsáveis.
+//Coordena a partida e delega as regras para os objetos responsáveis;
 public class Jogo {
 
     private Tabuleiro tabuleiro;
@@ -12,13 +13,11 @@ public class Jogo {
     private int jogadas = 0;
     private int jogadasSemComerPeca = 0;
     private Casa casaBloqueadaOrigem;
-    private ValidadorMovimento validadorMovimento;
 
     public Jogo() {
         tabuleiro = new Tabuleiro();
         jogadorUm = new Jogador("player branco", CorPeca.BRANCA);
         jogadorDois = new Jogador("player vermelho", CorPeca.VERMELHA);
-        validadorMovimento = new ValidadorMovimento(tabuleiro);
 
         vezAtual = 1;
         jogadas = 0;
@@ -28,56 +27,60 @@ public class Jogo {
         tabuleiro.colocarPecas();
     }
 
+    //Continua em Jogo porque coordena todas as etapas de uma jogada;
     public void moverPeca(int origemX, int origemY, int destinoX, int destinoY) {
         Casa origem = tabuleiro.getCasa(origemX, origemY);
         Casa destino = tabuleiro.getCasa(destinoX, destinoY);
         Peca peca = origem.getPeca();
+        List<Casa> pecasAComer = new ArrayList<Casa>();
 
-        if (casaBloqueadaOrigem == null) {
-            if ((getVez() == 1 && jogadorUm.controla(peca)) ||
-                (getVez() == 2 && jogadorDois.controla(peca))) {
+        //As condições receberam nomes ligados às regras do jogo;
+        if (jogadaPermitida(origem, peca)
+                && peca.simularMovimentoEValidar(tabuleiro, destino, pecasAComer)
+                && capturaObrigatoriaAtendida(pecasAComer)) {
 
-                if (peca.isMovimentoValido(destino)) {
-                    if (validadorMovimento.simularMovimentoEValidar(origem, destino)) {
-                        peca.mover(destino);
-
-                        if (validadorMovimento.getPecasAComer().size() > 0) {
-                            comerPecas();
-
-                            if (validadorMovimento.deveContinuarJogando(destino)) {
-                                casaBloqueadaOrigem = destino;
-                            } else {
-                                trocarDeVez();
-                            }
-                        } else {
-                            jogadasSemComerPeca++;
-                            trocarDeVez();
-                        }
-
-                        jogadas++;
-                        tabuleiro.transformarPedraParaDama(destino);
-                    }
-                }
-            }
-        } else {
-            if (origem.equals(casaBloqueadaOrigem)) {
-                if (validadorMovimento.simularMovimentoEValidar(origem, destino)) {
-                    if (validadorMovimento.getPecasAComer().size() != 0) {
-                        casaBloqueadaOrigem = null;
-                        moverPeca(origemX, origemY, destinoX, destinoY);
-                    }
-                }
-            }
+            peca.mover(destino);
+            concluirMovimento(peca, destino, pecasAComer);
         }
     }
 
-    // Permanece em Jogo porque altera pontuação e estado da partida.
-    private void comerPecas() {
-        ArrayList<Casa> pecasAComer = validadorMovimento.getPecasAComer();
-        int pecasComidas = pecasAComer.size();
+    //Verifica se existe uma peça do jogador atual e se a origem está liberada;
+    private boolean jogadaPermitida(Casa origem, Peca peca) {
+        if (peca == null) return false;
 
-        if (getVez() == 1) jogadorUm.addPonto(pecasComidas);
-        if (getVez() == 2) jogadorDois.addPonto(pecasComidas);
+        boolean jogadorControlaPeca = getJogadorAtual().controla(peca);
+        boolean origemPermitida = casaBloqueadaOrigem == null || origem.equals(casaBloqueadaOrigem);
+
+        return jogadorControlaPeca && origemPermitida;
+    }
+
+    //Durante uma sequência de capturas a próxima jogada também precisa capturar;
+    private boolean capturaObrigatoriaAtendida(List<Casa> pecasAComer) {
+        return casaBloqueadaOrigem == null || !pecasAComer.isEmpty();
+    }
+
+    //Atualiza captura, turno, quantidade de jogadas e promoção;
+    private void concluirMovimento(Peca peca, Casa destino, List<Casa> pecasAComer) {
+        if (pecasAComer.isEmpty()) {
+            jogadasSemComerPeca++;
+            finalizarTurno();
+        } else {
+            comerPecas(pecasAComer);
+
+            if (peca.deveContinuarJogando(tabuleiro)) {
+                casaBloqueadaOrigem = destino;
+            } else {
+                finalizarTurno();
+            }
+        }
+
+        jogadas++;
+        tabuleiro.transformarPedraParaDama(destino);
+    }
+
+    //Continua em Jogo porque altera pontuação e estado da partida;
+    private void comerPecas(List<Casa> pecasAComer) {
+        getJogadorAtual().addPonto(pecasAComer.size());
 
         for (Casa casa : pecasAComer) {
             casa.removerPeca();
@@ -85,6 +88,16 @@ public class Jogo {
 
         pecasAComer.clear();
         jogadasSemComerPeca = 0;
+    }
+
+    private void finalizarTurno() {
+        casaBloqueadaOrigem = null;
+        trocarDeVez();
+    }
+
+    private Jogador getJogadorAtual() {
+        if (getVez() == 1) return jogadorUm;
+        return jogadorDois;
     }
 
     public void trocarDeVez() {
