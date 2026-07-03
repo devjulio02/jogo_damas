@@ -1,7 +1,17 @@
 package com.damas.objetos;
 
-// Identifica a categoria da peça sem usar códigos numéricos.
+//Identifica o tipo da peça e se ela ainda pode ser promovida;
 public enum TipoPeca {
-    PEDRA,
-    DAMA
+    PEDRA(true),
+    DAMA(false);
+
+    private boolean podeSerPromovida;
+
+    TipoPeca(boolean podeSerPromovida) {
+        this.podeSerPromovida = podeSerPromovida;
+    }
+
+    public boolean podeSerPromovida() {
+        return podeSerPromovida;
+    }
 }
