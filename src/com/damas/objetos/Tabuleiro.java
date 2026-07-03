@@ -1,6 +1,6 @@
 package com.damas.objetos;
 
-// Armazena as casas, posiciona as peças e verifica os limites do tabuleiro.
+//Armazena as casas, posiciona as peças e verifica os limites do tabuleiro;
 public class Tabuleiro {
 
     private static final int MAX_LINHAS = 8;
@@ -22,7 +22,7 @@ public class Tabuleiro {
         }
     }
 
-    // Método colocarPecas movido da classe Jogo.
+    //Método colocarPecas movido da classe Jogo;
     public void colocarPecas() {
         for (int x = 0; x < MAX_LINHAS; x++) {
             for (int y = 0; y < 3; y++) {
@@ -41,16 +41,14 @@ public class Tabuleiro {
         }
     }
 
-    // Reúne a validação e a transformação que antes estavam separadas em Jogo.
+    //A cor conhece sua linha de promoção e o tipo informa se ainda pode ser promovido;
     public void transformarPedraParaDama(Casa casa) {
         Peca peca = casa.getPeca();
 
-        if (peca == null || peca.getTipo() != TipoPeca.PEDRA) return;
+        if (peca == null) return;
+        if (!peca.getTipo().podeSerPromovida()) return;
 
-        boolean pedraBrancaNoLimite = peca.getCor() == CorPeca.BRANCA && casa.getY() == MAX_COLUNAS - 1;
-        boolean pedraVermelhaNoLimite = peca.getCor() == CorPeca.VERMELHA && casa.getY() == 0;
-
-        if (pedraBrancaNoLimite || pedraVermelhaNoLimite) {
+        if (peca.getCor().chegouNaLinhaPromocao(casa.getY())) {
             new Dama(casa, peca.getCor());
         }
     }
