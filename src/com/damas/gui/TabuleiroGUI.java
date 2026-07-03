@@ -48,7 +48,7 @@ public class TabuleiroGUI extends JPanel {
                 CasaGUI casaGUI = casas[x][y];
                 Tabuleiro tabuleiro = jogo.getTabuleiro();
                 Casa casa = tabuleiro.getCasa(x, y);
-
+                //Ainda tá usando tipo como condição, mas eliminou código númerico, (static final) de casaGUI
                 if (casa.possuiPeca()) {
                     Peca peca = casa.getPeca();
 

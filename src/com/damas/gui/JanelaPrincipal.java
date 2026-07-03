@@ -30,7 +30,7 @@ public class JanelaPrincipal extends JFrame {
             }
         });
 
-        // Antes a GUI chamava jogo.toString(); agora usa o formatador.
+        //Aqui é chamado o FormatadorJogo, invés de jogo.toString();
         menuStatus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
